@@ -60,6 +60,10 @@ class StreamToLogger(object):
     def flush(self):
         pass
 
+def syslog_message(message):
+    os.system("logger -t nc-wag-os_communications_main " + message)        
+        
+        
 
 def read_file( str ):
     print "read_file: "+str
@@ -83,7 +87,6 @@ def createDirForFile(file):
 
 def get_certificates():
     reverse_ssh_port_file = '/etc/waggle/reverse_ssh_port'
-    
     
     loop=-1
     while True:
@@ -397,9 +400,13 @@ if __name__ == "__main__":
                 logger.warning("We are in the wrong year. Waiting for the correct time.")
                 time.sleep(10)
         
+            syslog_message('get_certificates(): starting...')
             get_certificates()
+            syslog_message('get_certificates(): complete (not necessarily successfully)')
         
+            syslog_message('get_queuename(): starting...')
             get_queuename()
+            syslog_message('get_queuename(): complete (not necessarily successfully)')
     
     
             logger.debug('QUEUENAME: "' + conf['QUEUENAME'] + '"')
