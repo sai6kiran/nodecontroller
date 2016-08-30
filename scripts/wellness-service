@@ -201,9 +201,11 @@ while True:
 
   # Local checks (done every minute)
   #print("Performing local checks...")
+  """
   local_check_results = [check_USB_modem(),
                          check_network_interface(),
                          check_local_sshd()]
+  """
 
   # Beehive checks
   beehive_check_results = []
@@ -212,11 +214,12 @@ while True:
     beehive_check_results = [check_beehive_DNS(beehive_hostname),
                              check_beehive_ping(beehive_hostname),
                              check_beehive_sshd(beehive_hostname),]
-    if all(results2):
+    if all(beehive_check_results):
       beehive_check_time = time.time()
 
   # Reset deadman trigger if all local and Beehive checks have passed
-  results = local_check_results + beehive_check_results
+  #results = local_check_results + beehive_check_results
+  results = beehive_check_results
   if all(results):
     #print("Resetting deadman trigger...")
     reset_deadman_trigger()
