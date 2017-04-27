@@ -51,23 +51,36 @@ class RPCConsumerThread(threading.Thread):
     threading.Thread.__init__(self, group=None, target=None, name=None)
     self.wagman = wagman
     self.startup_timestamp = int(time.time())
+    '''
     credentials = pika.credentials.PlainCredentials('node', 'waggle')
     ssl_options={'ca_certs':'/usr/lib/waggle/SSL/waggleca/cacert.pem',
                  'certfile':'/usr/lib/waggle/SSL/node/cert.pem',
                  'keyfile':'/usr/lib/waggle/SSL/node/key.pem'}
-
+    '''
     with open('/etc/waggle/server_host') as host_file:
       host = host_file.read().rstrip()
+    '''
     connection = pika.BlockingConnection(pika.ConnectionParameters(
       host=host, port=23181, credentials=credentials, ssl=True,
       ssl_options=ssl_options, socket_timeout=10))
+    '''
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     self.channel = connection.channel()
     with open('/etc/waggle/node_id') as id_file:
       node_id = id_file.read().rstrip()
+
+    '''
     self.queue_name = ''.join(('rpc_shutdown_', node_id))
     arguments = {"x-max-length":1}
     self.channel.queue_declare(queue=self.queue_name, arguments=arguments)
     self.channel.basic_consume(self.callback, queue=self.queue_name)
+    '''
+    self.channel.exchange_declare(exchange='rpc', type='topic')
+    queue = channel.queue_declare(exclusive=True)
+    self.queue_name = result.method.queue
+    self.channel.queue_bind(exchange='rpc',
+                            queue=queue_name,
+                            routing_key="*.shutdown")
 
   def callback(self, channel, method, properties, body):
     try:
